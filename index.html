@@ -4,13 +4,15 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <title>Bóveda VE · Control de Ingresos, Gastos y OCR</title>
-  <!-- Configuración PWA: Manifiesto, color de barra de estado e ícono móvil -->
+  <!-- Configuración PWA: Manifiesto, color de barra de estado e íconos PNG físicos -->
   <link rel="manifest" href="./manifest.json">
   <meta name="theme-color" content="#0f172a">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <meta name="apple-mobile-web-app-title" content="Bóveda VE">
-  <link rel="apple-touch-icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 512 512'%3E%3Crect width='512' height='512' rx='112' fill='%23059669'/%3E%3Ctext x='50%25' y='54%25' dominant-baseline='middle' text-anchor='middle' font-family='sans-serif' font-weight='bold' font-size='260' fill='white'%3E%24%3C/text%3E%3C/svg%3E">
+  <link rel="icon" type="image/png" sizes="192x192" href="./icon-192.png">
+  <link rel="apple-touch-icon" sizes="192x192" href="./icon-192.png">
+  <link rel="apple-touch-icon" sizes="512x512" href="./icon-512.png">
   <!-- Tailwind CSS para diseño responsivo y utilidades -->
   <script src="https://cdn.tailwindcss.com"></script>
   <!-- Fuente Inter para legibilidad fintech -->
@@ -49,7 +51,6 @@
     .tabular-nums {
       font-variant-numeric: tabular-nums;
     }
-    /* Ocultar scrollbar en pestañas móviles pero permitir desplazamiento */
     .no-scrollbar::-webkit-scrollbar {
       display: none;
     }
@@ -116,11 +117,9 @@
 
         <button id="theme-toggle" type="button" aria-label="Cambiar tema"
           class="p-2.5 rounded-xl bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700 transition">
-          <!-- Icono Sol (Dark mode activo) -->
           <svg id="icon-sun" class="w-4 h-4 hidden dark:block" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z"></path>
           </svg>
-          <!-- Icono Luna (Light mode activo) -->
           <svg id="icon-moon" class="w-4 h-4 block dark:hidden" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"></path>
           </svg>
@@ -138,7 +137,6 @@
         class="w-full px-4 py-3 flex items-center justify-between gap-2 text-left hover:bg-slate-50 dark:hover:bg-slate-800/50 transition">
         <div class="flex items-center gap-2.5">
           <div id="saldos-eye-icon" class="w-8 h-8 rounded-xl bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 flex items-center justify-center">
-            <!-- Icono Ojo Cerrado (Privacidad activa) -->
             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88l-3.29-3.29m7.532 7.532l3.29 3.29M3 3l3.59 3.59m0 0A9.953 9.953 0 0112 5c4.478 0 8.268 2.943 9.543 7a10.025 10.025 0 01-4.132 5.411m0 0L21 21"></path>
             </svg>
@@ -167,7 +165,6 @@
         </div>
 
         <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
-          <!-- Tarjeta 1: Efectivo Bs -->
           <div class="bg-slate-50 dark:bg-slate-950/80 rounded-2xl p-3.5 border border-slate-200/80 dark:border-slate-800">
             <div class="flex items-center justify-between mb-1.5">
               <span class="text-xs font-semibold text-amber-600 dark:text-amber-400 bg-amber-500/10 px-2 py-0.5 rounded-lg">Efectivo Bs</span>
@@ -177,7 +174,6 @@
             <div id="bal-efectivo-bs-eq" class="text-[11px] text-slate-500 dark:text-slate-400 mt-0.5 tabular-nums">≈ $ 0,00</div>
           </div>
 
-          <!-- Tarjeta 2: Bancos (Bs) con desglose recogido por defecto -->
           <div class="bg-slate-50 dark:bg-slate-950/80 rounded-2xl p-3.5 border border-slate-200/80 dark:border-slate-800">
             <div class="flex items-center justify-between mb-1.5">
               <span class="text-xs font-semibold text-orange-600 dark:text-orange-400 bg-orange-500/10 px-2 py-0.5 rounded-lg">Bancos (Bs)</span>
@@ -187,11 +183,9 @@
             </div>
             <div id="bal-bancos-bs" class="text-xl font-extrabold tracking-tight tabular-nums text-slate-900 dark:text-white">Bs 0,00</div>
             <div id="bal-bancos-bs-eq" class="text-[11px] text-slate-500 dark:text-slate-400 mt-0.5 tabular-nums">≈ $ 0,00</div>
-            <!-- Desglose específico por banco (RECOGIDO POR DEFECTO) -->
             <div id="bank-breakdown" class="hidden mt-2.5 pt-2 border-t border-slate-200/70 dark:border-slate-800 space-y-1 text-xs"></div>
           </div>
 
-          <!-- Tarjeta 3: Efectivo Dólar ($) -->
           <div class="bg-slate-50 dark:bg-slate-950/80 rounded-2xl p-3.5 border border-slate-200/80 dark:border-slate-800">
             <div class="flex items-center justify-between mb-1.5">
               <span class="text-xs font-semibold text-emerald-600 dark:text-emerald-400 bg-emerald-500/10 px-2 py-0.5 rounded-lg">Efectivo Dólar</span>
@@ -201,7 +195,6 @@
             <div id="bal-efectivo-usd-eq" class="text-[11px] text-slate-500 dark:text-slate-400 mt-0.5 tabular-nums">≈ Bs 0,00</div>
           </div>
 
-          <!-- Tarjeta 4: Digital Dólar & Exchange ($) con desglose recogido por defecto -->
           <div class="bg-slate-50 dark:bg-slate-950/80 rounded-2xl p-3.5 border border-slate-200/80 dark:border-slate-800">
             <div class="flex items-center justify-between mb-1.5">
               <span class="text-xs font-semibold text-cyan-600 dark:text-cyan-400 bg-cyan-500/10 px-2 py-0.5 rounded-lg">Digital Dólar ($)</span>
@@ -211,17 +204,14 @@
             </div>
             <div id="bal-digital-usd" class="text-xl font-extrabold tracking-tight tabular-nums text-slate-900 dark:text-white">$ 0,00</div>
             <div id="bal-digital-usd-eq" class="text-[11px] text-slate-500 dark:text-slate-400 mt-0.5 tabular-nums">≈ Bs 0,00</div>
-            <!-- Desglose específico por Exchange y Dólar Digital (RECOGIDO POR DEFECTO) -->
             <div id="exchange-breakdown" class="hidden mt-2.5 pt-2 border-t border-slate-200/70 dark:border-slate-800 space-y-1 text-xs"></div>
           </div>
         </div>
       </div>
     </section>
 
-    <!-- VISTA 1: REGISTRO DE MOVIMIENTOS + ESCÁNER OCR (Visible inmediatamente arriba) -->
+    <!-- VISTA 1: REGISTRO DE MOVIMIENTOS + ESCÁNER OCR -->
     <div id="view-registro" class="grid grid-cols-1 lg:grid-cols-12 gap-5">
-
-      <!-- Columna Izquierda (7 cols): Formulario Principal -->
       <div class="lg:col-span-7 bg-white dark:bg-slate-900 rounded-2xl p-5 sm:p-6 border border-slate-200 dark:border-slate-800 shadow-sm">
         <div class="flex items-center justify-between mb-4">
           <div>
@@ -234,7 +224,6 @@
         </div>
 
         <form id="tx-form" class="space-y-4">
-          <!-- Selector Segmentado: Tipo (Gasto / Ingreso) -->
           <div>
             <label class="block text-xs font-semibold text-slate-500 dark:text-slate-400 mb-1.5">Tipo de Operación</label>
             <div class="grid grid-cols-2 gap-2.5 p-1 bg-slate-100 dark:bg-slate-950 rounded-xl border border-slate-200 dark:border-slate-800">
@@ -253,7 +242,6 @@
             </div>
           </div>
 
-          <!-- Fila: Fecha y Categoría -->
           <div class="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
             <div>
               <label for="tx-date" class="block text-xs font-semibold text-slate-500 dark:text-slate-400 mb-1.5">Fecha (Día/Mes/Año)</label>
@@ -269,7 +257,6 @@
             </div>
           </div>
 
-          <!-- Fila: Medio de Pago + Selectores Condicionales (Banco o Exchange) -->
           <div class="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
             <div>
               <label for="tx-payment-method" class="block text-xs font-semibold text-slate-500 dark:text-slate-400 mb-1.5">Medio de Pago</label>
@@ -278,7 +265,6 @@
               </select>
             </div>
 
-            <!-- Condicional: Si es Pago Móvil, Transferencia o Tarjeta -> Escoger Banco -->
             <div id="bank-select-wrapper">
               <label for="tx-bank" class="block text-xs font-semibold text-amber-600 dark:text-amber-400 mb-1.5">Escoger Banco (Bs)</label>
               <select id="tx-bank"
@@ -286,7 +272,6 @@
               </select>
             </div>
 
-            <!-- Condicional: Si es Exchange -> Escoger Exchange -->
             <div id="exchange-select-wrapper" class="hidden">
               <label for="tx-exchange" class="block text-xs font-semibold text-cyan-600 dark:text-cyan-400 mb-1.5">Escoger Exchange ($)</label>
               <select id="tx-exchange"
@@ -295,7 +280,6 @@
             </div>
           </div>
 
-          <!-- Fila: Monto, Moneda (Bs / $) y Comisión Bancaria Inteligente -->
           <div class="space-y-3">
             <div class="grid grid-cols-1 sm:grid-cols-12 gap-3.5 items-start">
               <div id="amount-col-wrapper" class="sm:col-span-12">
@@ -317,7 +301,6 @@
                 </div>
               </div>
 
-              <!-- Campo Condicional de Comisión Bancaria (Calculada auto y editable por registro) -->
               <div id="commission-wrapper" class="hidden sm:col-span-5">
                 <div class="flex items-center justify-between mb-1.5">
                   <label for="tx-commission" class="block text-xs font-semibold text-orange-600 dark:text-orange-400">
@@ -331,7 +314,6 @@
               </div>
             </div>
 
-            <!-- Panel Condicional de Políticas Bancarias VE (Mismo/Otro banco y Error Pago Móvil) -->
             <div id="bank-policy-box" class="hidden p-3 rounded-xl bg-orange-500/5 dark:bg-orange-500/10 border border-orange-500/25 space-y-2.5">
               <div class="flex flex-wrap items-center justify-between gap-2">
                 <span class="text-[11px] font-bold text-orange-700 dark:text-orange-300">Política Bancaria Aplicada:</span>
@@ -347,7 +329,6 @@
                 </div>
               </div>
 
-              <!-- Casilla para Pago Móvil / Operación Fallida -->
               <label id="failed-pm-wrapper" class="flex items-start gap-2 cursor-pointer pt-1 border-t border-orange-500/15">
                 <input type="checkbox" id="tx-failed-pm" class="mt-0.5 rounded border-orange-400 text-orange-600 focus:ring-orange-500">
                 <span class="text-[11px] leading-snug text-slate-600 dark:text-slate-300">
@@ -361,7 +342,6 @@
             Equivalente estimado: $ 0,00
           </p>
 
-          <!-- Nota / Referencia (Se auto-llena con el texto leído del OCR) -->
           <div>
             <div class="flex items-center justify-between mb-1.5">
               <label for="tx-note" class="block text-xs font-semibold text-slate-500 dark:text-slate-400">Nota / N° Referencia / Texto OCR</label>
@@ -379,7 +359,7 @@
         </form>
       </div>
 
-      <!-- Columna Derecha (5 cols): Escáner OCR de Pago Móvil y Transferencias -->
+      <!-- Columna Derecha: Escáner OCR -->
       <div class="lg:col-span-5 space-y-4">
         <div id="ocr-card" class="bg-white dark:bg-slate-900 rounded-2xl p-5 sm:p-6 border border-slate-200 dark:border-slate-800 shadow-sm">
           <div class="flex items-start justify-between gap-2 mb-3">
@@ -395,7 +375,6 @@
             Sube una captura de tu banco. La imagen se mostrará en grande para que puedas verificarla y todo el texto leído se copiará automáticamente en la Nota del registro.
           </p>
 
-          <!-- Vista Previa Grande de la Imagen Subida (Oculta hasta cargar imagen) -->
           <div id="ocr-image-preview-box" class="hidden mb-3.5 rounded-2xl overflow-hidden border border-slate-200 dark:border-slate-700 bg-slate-950 relative">
             <img id="ocr-preview-img" src="" alt="Vista previa del comprobante" onclick="openImageModal()"
               class="w-full max-h-72 object-contain mx-auto cursor-zoom-in">
@@ -409,7 +388,6 @@
             </div>
           </div>
 
-          <!-- Zona de Carga de Imagen -->
           <label for="ocr-file-input"
             class="block border-2 border-dashed border-slate-300 dark:border-slate-700 hover:border-indigo-500 dark:hover:border-indigo-400 rounded-2xl p-4 text-center cursor-pointer transition bg-slate-50/50 dark:bg-slate-950/50">
             <input type="file" id="ocr-file-input" accept="image/*" class="hidden">
@@ -423,7 +401,6 @@
             <span class="block text-[11px] text-slate-400 mt-0.5">Detecta Monto, Banco, Fecha y guarda el texto en Nota</span>
           </label>
 
-          <!-- Barra de Progreso OCR -->
           <div id="ocr-progress-box" class="hidden mt-3.5 p-3 rounded-xl bg-indigo-500/10 border border-indigo-500/20">
             <div class="flex items-center justify-between text-xs font-semibold text-indigo-600 dark:text-indigo-300 mb-1.5">
               <span id="ocr-status-text">Analizando comprobante...</span>
@@ -434,7 +411,6 @@
             </div>
           </div>
 
-          <!-- Alternativa Ultra Rápida 100% Offline: Pegar Texto SMS / Comprobante -->
           <div class="mt-4 pt-4 border-t border-slate-100 dark:border-slate-800">
             <label for="ocr-raw-text" class="block text-xs font-semibold text-slate-500 dark:text-slate-400 mb-1.5">
               Texto leído / SMS bancario (100% Offline):
@@ -455,7 +431,6 @@
     <!-- VISTA 2: HISTORIAL DE MOVIMIENTOS Y FILTROS -->
     <div id="view-historial" class="hidden space-y-4">
       <div class="bg-white dark:bg-slate-900 rounded-2xl p-4 sm:p-5 border border-slate-200 dark:border-slate-800 shadow-sm">
-        <!-- Barra de Filtros -->
         <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 mb-4">
           <input type="text" id="filter-search" placeholder="Buscar por nota, banco o referencia..."
             class="rounded-xl bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 px-3.5 py-2 text-xs focus:outline-none focus:ring-2 focus:ring-indigo-500">
@@ -474,7 +449,6 @@
             class="rounded-xl bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 px-3.5 py-2 text-xs font-medium">
         </div>
 
-        <!-- Resumen rápido del filtro actual -->
         <div class="flex flex-wrap items-center justify-between gap-2 py-2.5 px-3.5 mb-4 rounded-xl bg-slate-50 dark:bg-slate-950 border border-slate-200/70 dark:border-slate-800 text-xs">
           <span class="text-slate-500 dark:text-slate-400">Mostrando <strong id="filtered-count" class="text-slate-900 dark:text-white">0</strong> movimientos</span>
           <div class="flex flex-wrap gap-4 tabular-nums">
@@ -483,7 +457,6 @@
           </div>
         </div>
 
-        <!-- Lista de Transacciones -->
         <div id="tx-list-container" class="space-y-2.5"></div>
       </div>
     </div>
@@ -496,7 +469,6 @@
       </div>
 
       <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-        <!-- Lista 1: Bancos (+) -->
         <div class="bg-white dark:bg-slate-900 rounded-2xl p-4 border border-slate-200 dark:border-slate-800 shadow-sm flex flex-col">
           <h4 class="text-sm font-bold text-amber-600 dark:text-amber-400 mb-3 flex items-center justify-between">
             <span>Bancos (+)</span>
@@ -510,7 +482,6 @@
           <ul id="list-banks" class="space-y-1.5 text-xs flex-1"></ul>
         </div>
 
-        <!-- Lista 2: Categorías (+) -->
         <div class="bg-white dark:bg-slate-900 rounded-2xl p-4 border border-slate-200 dark:border-slate-800 shadow-sm flex flex-col">
           <h4 class="text-sm font-bold text-emerald-600 dark:text-emerald-400 mb-3 flex items-center justify-between">
             <span>Categorías (+)</span>
@@ -524,7 +495,6 @@
           <ul id="list-categories" class="space-y-1.5 text-xs flex-1"></ul>
         </div>
 
-        <!-- Lista 3: Medios de Pago (+) -->
         <div class="bg-white dark:bg-slate-900 rounded-2xl p-4 border border-slate-200 dark:border-slate-800 shadow-sm flex flex-col">
           <h4 class="text-sm font-bold text-indigo-600 dark:text-indigo-400 mb-3 flex items-center justify-between">
             <span>Medios de Pago (+)</span>
@@ -538,7 +508,6 @@
           <ul id="list-paymentMethods" class="space-y-1.5 text-xs flex-1"></ul>
         </div>
 
-        <!-- Lista 4: Exchanges (+) -->
         <div class="bg-white dark:bg-slate-900 rounded-2xl p-4 border border-slate-200 dark:border-slate-800 shadow-sm flex flex-col">
           <h4 class="text-sm font-bold text-cyan-600 dark:text-cyan-400 mb-3 flex items-center justify-between">
             <span>Exchanges (+)</span>
@@ -635,7 +604,7 @@
 
   </main>
 
-  <!-- BANDEJA DE NAVEGACIÓN PERMANENTE INFERIOR (Estilo App Móvil Nativa) -->
+  <!-- BANDEJA DE NAVEGACIÓN PERMANENTE INFERIOR -->
   <nav aria-label="Navegación principal"
     class="fixed bottom-0 inset-x-0 z-40 bg-white/95 dark:bg-slate-900/95 backdrop-blur-md border-t border-slate-200 dark:border-slate-800 shadow-lg">
     <div class="max-w-3xl mx-auto grid grid-cols-4 h-16 px-1">
@@ -678,17 +647,11 @@
   </nav>
 
   <script>
-    /**
-     * ============================================================================
-     * BÓVEDA VE - ARQUITECTURA DE ESTADO Y ALMACENAMIENTO LOCAL (100% OFFLINE)
-     * ============================================================================
-     */
     const STORAGE_KEY = 'boveda_ve_data_v1';
-    // Datos iniciales idénticos a la estructura de la imagen del usuario + Política Bancaria VE
     const DEFAULT_STATE = {
       exchangeRate: 45.00,
-      defaultPagoMovilCommission: 14.00, // Piso mínimo interbancario (Bs)
-      commissionPercent: 0.30,           // 0.30% a partir de 4.666,67 Bs
+      defaultPagoMovilCommission: 14.00,
+      commissionPercent: 0.30,
       theme: 'dark',
       lists: {
         banks: ['Mercantil', 'Venezuela', 'Banesco', 'Provincial'],
@@ -717,7 +680,7 @@
 
     let appState = loadState();
     let currentPreviewObjectUrl = null;
-    let isSaldosVisible = false; // Recogido por defecto por privacidad
+    let isSaldosVisible = false;
 
     function loadState() {
       try {
@@ -746,11 +709,6 @@
       }
     }
 
-    /**
-     * ============================================================================
-     * CONTROL DE PRIVACIDAD Y ACORDEONES DE SALDOS
-     * ============================================================================
-     */
     function toggleSaldosPanel() {
       isSaldosVisible = !isSaldosVisible;
       const content = document.getElementById('saldos-panel-content');
@@ -780,11 +738,6 @@
       }
     }
 
-    /**
-     * ============================================================================
-     * FORMATEADORES Y UTILIDADES NUMÉRICAS
-     * ============================================================================
-     */
     function formatMoney(amount, currency = 'Bs') {
       const num = Number(amount) || 0;
       const formatted = num.toLocaleString('es-VE', {
@@ -829,15 +782,6 @@
       }, 3200);
     }
 
-    /**
-     * ============================================================================
-     * LÓGICA CONDICIONAL Y CÁLCULO DE COMISIÓN BANCARIA REAL DE VENEZUELA
-     * - Piso mínimo: 14,00 Bs (hasta 4.666,67 Bs)
-     * - Por encima de 4.666,67 Bs: 0,30% del monto (en operaciones a otros bancos)
-     * - Mismo banco: 0,00 Bs
-     * - Pago Móvil Fallido (Error): Solo cobra el piso mínimo (14,00 Bs), monto principal = 0
-     * ============================================================================
-     */
     let isCommissionManuallyEdited = false;
 
     function calculateSuggestedCommission() {
@@ -847,17 +791,12 @@
       const minFloor = Math.max(0, Number(appState.defaultPagoMovilCommission ?? 14));
       const pct = Math.max(0, Number(appState.commissionPercent ?? 0.30)) / 100;
 
-      // Si es operación fallida (error en Pago Móvil), cobra exactamente el piso mínimo
       if (isFailed) {
         return { value: minFloor, ruleLabel: 'Error (Mín.)' };
       }
-
-      // Si es transferencia o pago al mismo banco, comisión = 0
       if (destType === 'mismo') {
         return { value: 0, ruleLabel: 'Mismo Bco' };
       }
-
-      // Otros bancos: Piso mínimo (14 Bs) hasta 4.666,67 Bs; luego 0,30%
       if (amount <= 0) {
         return { value: minFloor, ruleLabel: `Mín. ${minFloor}` };
       }
@@ -897,11 +836,9 @@
       const isExchangeMethod = lower.includes('exchange');
       const isDigitalUsd = lower.includes('dólar digital') || lower.includes('dolar digital');
 
-      // Mostrar/ocultar selectores condicionales de Banco y Exchange
       bankWrapper.classList.toggle('hidden', !isBankMethod);
       exchangeWrapper.classList.toggle('hidden', !isExchangeMethod);
 
-      // Mostrar comisión y políticas si es Gasto en Pago Móvil o Transferencia
       const showCommission = (type === 'Gasto') && (isPagoMovil || isTransferencia);
       commissionWrapper.classList.toggle('hidden', !showCommission);
       bankPolicyBox.classList.toggle('hidden', !showCommission);
@@ -911,7 +848,6 @@
         amountColWrapper.classList.add('sm:col-span-7');
         isCommissionManuallyEdited = false;
 
-        // Por defecto en Pago Móvil marcar "Otros Bancos"; en Transferencia mantener selección actual
         if (isPagoMovil) {
           const otrosRadio = document.querySelector('input[name="bank-dest-type"][value="otros"]');
           if (otrosRadio) otrosRadio.checked = true;
@@ -924,7 +860,6 @@
         document.getElementById('tx-failed-pm').checked = false;
       }
 
-      // Sugerir moneda automáticamente según el medio elegido
       if (isBankMethod) {
         setCurrencyRadio('Bs');
       } else if (isExchangeMethod || isDigitalUsd) {
@@ -969,11 +904,6 @@
       }
     }
 
-    /**
-     * ============================================================================
-     * CÁLCULO DE SALDOS (Incluye comisiones congeladas en cada gasto guardado)
-     * ============================================================================
-     */
     function calculateAndRenderBalances() {
       let efectivoBs = 0;
       let bancosBsTotal = 0;
@@ -988,7 +918,6 @@
 
       appState.transactions.forEach(tx => {
         const sign = tx.type === 'Ingreso' ? 1 : -1;
-        // La comisión congelada del registro se suma al débito si es Gasto
         const frozenCommission = (tx.type === 'Gasto' && tx.currency === 'Bs') ? (Number(tx.commission) || 0) : 0;
         const baseAmount = Number(tx.amount) || 0;
         const effectiveImpact = (baseAmount + frozenCommission) * sign;
@@ -1018,7 +947,6 @@
 
       const rate = appState.exchangeRate || 1;
 
-      // Actualizar tarjetas principales
       document.getElementById('bal-efectivo-bs').textContent = formatMoney(efectivoBs, 'Bs');
       document.getElementById('bal-efectivo-bs-eq').textContent = `≈ ${formatMoney(efectivoBs / rate, '$')}`;
 
@@ -1031,13 +959,11 @@
       document.getElementById('bal-digital-usd').textContent = formatMoney(digitalUsdTotal, '$');
       document.getElementById('bal-digital-usd-eq').textContent = `≈ ${formatMoney(digitalUsdTotal * rate, 'Bs')}`;
 
-      // Patrimonio consolidado
       const totalUsd = efectivoUsd + digitalUsdTotal + ((efectivoBs + bancosBsTotal) / rate);
       const totalBs = efectivoBs + bancosBsTotal + ((efectivoUsd + digitalUsdTotal) * rate);
       document.getElementById('total-consolidated-usd').textContent = formatMoney(totalUsd, '$');
       document.getElementById('total-consolidated-bs').textContent = formatMoney(totalBs, 'Bs');
 
-      // Renderizar desglose por Banco Específico
       const bankBreakdownEl = document.getElementById('bank-breakdown');
       bankBreakdownEl.innerHTML = Object.entries(bankMap).map(([name, bal]) => `
         <div class="flex items-center justify-between text-slate-600 dark:text-slate-300">
@@ -1046,7 +972,6 @@
         </div>
       `).join('');
 
-      // Renderizar desglose por Exchange Específico
       const exchangeBreakdownEl = document.getElementById('exchange-breakdown');
       exchangeBreakdownEl.innerHTML = Object.entries(exchangeMap).map(([name, bal]) => `
         <div class="flex items-center justify-between text-slate-600 dark:text-slate-300">
@@ -1056,26 +981,18 @@
       `).join('');
     }
 
-    /**
-     * ============================================================================
-     * RENDERIZADO DE SELECTORES Y LISTAS PERSONALIZABLES (+)
-     * ============================================================================
-     */
     function populateAllSelectsAndLists() {
-      // 1. Selectores del formulario
       fillSelect('tx-bank', appState.lists.banks);
       fillSelect('tx-category', appState.lists.categories);
       fillSelect('tx-payment-method', appState.lists.paymentMethods);
       fillSelect('tx-exchange', appState.lists.exchanges);
 
-      // 2. Selector de filtro de categoría en historial
       const filterCat = document.getElementById('filter-category');
       const currentFilter = filterCat.value;
       filterCat.innerHTML = '<option value="ALL">Todas las Categorías</option>' +
         appState.lists.categories.map(c => `<option value="${c}">${c}</option>`).join('');
       if (appState.lists.categories.includes(currentFilter)) filterCat.value = currentFilter;
 
-      // 3. Listas editables en pestaña "Listas (+)"
       renderEditableList('banks', 'list-banks');
       renderEditableList('categories', 'list-categories');
       renderEditableList('paymentMethods', 'list-paymentMethods');
@@ -1131,11 +1048,6 @@
       showToast(`"${removed[0]}" eliminado.`, 'info');
     }
 
-    /**
-     * ============================================================================
-     * REGISTRO, HISTORIAL Y FILTRADO DE TRANSACCIONES
-     * ============================================================================
-     */
     document.getElementById('tx-form').addEventListener('submit', function(e) {
       e.preventDefault();
 
@@ -1160,12 +1072,10 @@
       const isBank = lower.includes('pago móvil') || lower.includes('pago movil') || lower.includes('transferencia') || lower.includes('tarjeta');
       const isExchange = lower.includes('exchange');
 
-      // Congelar la comisión específica ingresada en este formulario
       const frozenCommission = (type === 'Gasto' && currency === 'Bs' && commissionVisible)
         ? Math.max(0, parseFloat(document.getElementById('tx-commission').value) || 0)
         : 0;
 
-      // Si fue operación fallida (error Pago Móvil), el monto principal debitado es 0 y solo se descuenta la comisión
       const finalAmount = isFailedOp ? 0 : rawAmount;
       if (isFailedOp) {
         const prefix = rawAmount > 0 ? `[ERROR PAGO MÓVIL - Intento fallido por ${formatMoney(rawAmount, 'Bs')}]` : `[ERROR PAGO MÓVIL - Comisión por fallo]`;
@@ -1185,7 +1095,7 @@
         exchange: isExchange ? document.getElementById('tx-exchange').value : null,
         currency,
         amount: finalAmount,
-        commission: frozenCommission, // Guardado inmutable en el registro individual
+        commission: frozenCommission,
         isFailed: isFailedOp,
         note,
         rateAtTime: appState.exchangeRate
@@ -1248,7 +1158,6 @@
 
       const container = document.getElementById('tx-list-container');
 
-      // Calcular totales del filtro (incluyendo comisiones congeladas)
       let inBs = 0, inUsd = 0, outBs = 0, outUsd = 0;
       filtered.forEach(tx => {
         const comm = (tx.type === 'Gasto' && tx.currency === 'Bs') ? (Number(tx.commission) || 0) : 0;
@@ -1283,7 +1192,6 @@
 
         return `
           <div class="flex flex-col gap-2.5 p-3.5 rounded-xl bg-slate-50 dark:bg-slate-950/80 border border-slate-200/80 dark:border-slate-800 hover:border-slate-300 dark:hover:border-slate-700 transition">
-            <!-- Fila Superior: Icono, Categoría/Banco completo y Monto + Papelera -->
             <div class="flex items-start justify-between gap-2.5">
               <div class="flex items-start gap-2.5 min-w-0 flex-1">
                 <div class="w-9 h-9 rounded-xl shrink-0 flex items-center justify-center font-bold text-sm mt-0.5 ${isIncome ? 'bg-emerald-500/15 text-emerald-500' : 'bg-rose-500/15 text-rose-500'}">
@@ -1314,18 +1222,12 @@
               </div>
             </div>
 
-            <!-- Bloque Inferior Ancho Completo para la Nota / Texto OCR -->
             ${tx.note ? `<div class="w-full text-xs text-slate-600 dark:text-slate-300 leading-relaxed break-words whitespace-pre-line bg-white/80 dark:bg-slate-900/90 px-3 py-2 rounded-lg border border-slate-200/70 dark:border-slate-800">${tx.note}</div>` : ''}
           </div>
         `;
       }).join('');
     }
 
-    /**
-     * ============================================================================
-     * VISTA PREVIA DE IMAGEN Y MOTOR OCR ESPECIALIZADO EN VENEZUELA (Bs)
-     * ============================================================================
-     */
     function showOcrImagePreview(file) {
       if (currentPreviewObjectUrl) {
         URL.revokeObjectURL(currentPreviewObjectUrl);
@@ -1359,7 +1261,6 @@
       const file = e.target.files[0];
       if (!file) return;
 
-      // Mostrar inmediatamente la vista previa grande de la foto subida
       showOcrImagePreview(file);
 
       const progressBox = document.getElementById('ocr-progress-box');
@@ -1418,10 +1319,6 @@
       showToast('Datos extraídos y texto guardado en la Nota.');
     });
 
-    /**
-     * Analizador inteligente de comprobantes venezolanos:
-     * Extrae campos y guarda automáticamente TODO el texto leído en la Nota / Referencia.
-     */
     function parseVenezuelanReceiptText(text) {
       const cleanOneLine = text.replace(/\s+/g, ' ').trim();
       const readableMultiline = text
@@ -1431,12 +1328,10 @@
         .join(' | ');
       const lower = cleanOneLine.toLowerCase();
 
-      // 0. Guardar SIEMPRE todo el texto leído en el campo Nota / Referencia como respaldo seguro
       if (readableMultiline) {
         document.getElementById('tx-note').value = readableMultiline;
       }
 
-      // 1. Detectar Monto en Bs
       let detectedAmount = null;
       const amountPatterns = [
         /(?:bs\.?|ves|monto[:\s]*|total[:\s]*)\s*(\d{1,3}(?:\.\d{3})*,\d{2})/i,
@@ -1462,13 +1357,11 @@
         setCurrencyRadio('Bs');
       }
 
-      // 2. Detectar si es Ingreso o Gasto según palabras clave del comprobante
       if (lower.includes('recibido') || lower.includes('abono') || lower.includes('acreditado')) {
         const incRadio = document.querySelector('input[name="tx-type"][value="Ingreso"]');
         if (incRadio) incRadio.checked = true;
       }
 
-      // 3. Detectar Medio de Pago (Pago Móvil vs Transferencia)
       const pmSelect = document.getElementById('tx-payment-method');
       if (lower.includes('pago movil') || lower.includes('pago móvil') || lower.includes('p2p') || lower.includes('c2p') || lower.includes('tpago')) {
         selectMatchingOption(pmSelect, 'Pago Móvil');
@@ -1477,7 +1370,6 @@
       }
       handlePaymentMethodChange();
 
-      // 4. Detectar Banco Venezolano
       const bankSelect = document.getElementById('tx-bank');
       const bankKeywords = [
         { key: 'mercantil', label: 'Mercantil' },
@@ -1499,7 +1391,6 @@
         }
       }
 
-      // 5. Detectar Fecha (DD/MM/AAAA o DD-MM-AAAA)
       const dateMatch = cleanOneLine.match(/(\d{2})[\/\-](\d{2})[\/\-](20\d{2})/);
       if (dateMatch) {
         const iso = `${dateMatch[3]}-${dateMatch[2]}-${dateMatch[1]}`;
@@ -1517,11 +1408,6 @@
       }
     }
 
-    /**
-     * ============================================================================
-     * EXPORTACIÓN E IMPORTACIÓN DE RESPALDOS (JSON y CSV)
-     * ============================================================================
-     */
     function exportJSON() {
       const dataStr = JSON.stringify(appState, null, 2);
       const blob = new Blob([dataStr], { type: 'application/json' });
@@ -1596,16 +1482,13 @@
     }
 
     function initUI() {
-      // Aplicar tema guardado
       document.documentElement.classList.toggle('dark', appState.theme === 'dark');
 
-      // Tasa del día y Parámetros de Comisión Bancaria VE
       document.getElementById('exchange-rate-input').value = appState.exchangeRate;
       document.getElementById('default-commission-input').value = Number(appState.defaultPagoMovilCommission ?? 14).toFixed(2);
       document.getElementById('commission-percent-input').value = Number(appState.commissionPercent ?? 0.30).toFixed(2);
       updateThresholdDisplay();
 
-      // Fecha por defecto hoy
       document.getElementById('tx-date').value = getTodayISO();
 
       populateAllSelectsAndLists();
@@ -1613,7 +1496,6 @@
       renderTransactions();
     }
 
-    // Event Listeners globales
     document.getElementById('exchange-rate-input').addEventListener('input', function(e) {
       const val = parseFloat(e.target.value);
       if (val && val > 0) {
@@ -1686,12 +1568,10 @@
       r.addEventListener('change', updateConversionHint);
     });
 
-    // Filtros del historial
     ['filter-search', 'filter-type', 'filter-category', 'filter-month'].forEach(id => {
       document.getElementById(id).addEventListener('input', renderTransactions);
     });
 
-    // Control de pestañas en la bandeja inferior permanente
     document.querySelectorAll('.tab-btn').forEach(btn => {
       btn.addEventListener('click', function() {
         const target = this.dataset.tab;
@@ -1708,7 +1588,6 @@
       });
     });
 
-    // Indicador de estado de red (Offline / Online)
     function updateNetworkBadge() {
       const badge = document.getElementById('network-badge');
       if (navigator.onLine) {
@@ -1720,11 +1599,6 @@
     window.addEventListener('online', updateNetworkBadge);
     window.addEventListener('offline', updateNetworkBadge);
 
-    /**
-     * ============================================================================
-     * REGISTRO DE SERVICE WORKER Y GESTIÓN DE INSTALACIÓN PWA
-     * ============================================================================
-     */
     let deferredInstallPrompt = null;
 
     window.addEventListener('beforeinstallprompt', (e) => {
@@ -1763,7 +1637,6 @@
       });
     }
 
-    // Arrancar aplicación
     window.addEventListener('DOMContentLoaded', () => {
       initUI();
       updateNetworkBadge();
