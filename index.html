@@ -1,3 +1,4 @@
+```html
 <!DOCTYPE html>
 <html lang="es" class="dark">
 <head>
@@ -74,14 +75,14 @@
 
   <!-- Modal Pantalla Completa para Ampliar Comprobante OCR -->
   <div id="image-zoom-modal" class="hidden fixed inset-0 z-50 bg-slate-950/95 backdrop-blur-sm flex flex-col items-center justify-center p-4">
-    <div class="w-full max-w-2xl flex items-center justify-between mb-3">
+    <div class="w-full max-w-2xl flex items-center justify-between mb-3 shrink-0">
       <span class="text-xs font-semibold text-slate-300">Vista ampliada del comprobante</span>
       <button type="button" onclick="closeImageModal()" class="px-3.5 py-1.5 rounded-xl bg-slate-800 text-white text-xs font-bold hover:bg-slate-700 border border-slate-700">
         Cerrar ✕
       </button>
     </div>
-    <div class="w-full max-w-2xl max-h-[82vh] overflow-auto rounded-2xl border border-slate-800 bg-slate-900 flex items-center justify-center">
-      <img id="modal-zoom-img" src="" alt="Comprobante ampliado" class="max-w-full h-auto object-contain">
+    <div class="w-full max-w-2xl max-h-[82vh] overflow-y-auto rounded-2xl border border-slate-800 bg-slate-900 p-2 flex flex-col items-center justify-start">
+      <img id="modal-zoom-img" src="" alt="Comprobante ampliado" class="max-w-full max-h-[78vh] w-auto h-auto object-contain">
     </div>
   </div>
 
@@ -1257,10 +1258,66 @@
       document.getElementById('image-zoom-modal').classList.add('hidden');
     }
 
+    /**
+     * Pre-procesa la imagen antes del OCR:
+     * Si detecta modo oscuro (como BDV Digital), invierte los colores y aumenta el contraste
+     * para convertir texto blanco sobre fondo gris/negro en texto negro sobre fondo blanco.
+     */
+    async function preprocessImageForOcr(file) {
+      return new Promise((resolve) => {
+        const img = new Image();
+        const tempUrl = URL.createObjectURL(file);
+        img.onload = () => {
+          URL.revokeObjectURL(tempUrl);
+          const scale = img.width < 900 ? 1.5 : 1;
+          const canvas = document.createElement('canvas');
+          canvas.width = Math.round(img.width * scale);
+          canvas.height = Math.round(img.height * scale);
+          const ctx = canvas.getContext('2d');
+          ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+
+          const imgData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+          const data = imgData.data;
+
+          // Calcular brillo promedio para saber si es captura en modo oscuro (ej. BDV)
+          let totalBrightness = 0;
+          const sampleStep = 16;
+          let samples = 0;
+          for (let i = 0; i < data.length; i += 4 * sampleStep) {
+            totalBrightness += (data[i] + data[i + 1] + data[i + 2]) / 3;
+            samples++;
+          }
+          const isDarkBg = (totalBrightness / Math.max(1, samples)) < 120;
+
+          for (let i = 0; i < data.length; i += 4) {
+            let gray = 0.299 * data[i] + 0.587 * data[i + 1] + 0.114 * data[i + 2];
+            if (isDarkBg) {
+              // En BDV el monto está en blanco (>175) sobre recuadro gris (~115) y texto general claro (>170).
+              // Umbralizar convierte todo texto claro en negro puro (0) y tanto el fondo negro como el recuadro gris en blanco puro (255).
+              gray = gray > 155 ? 0 : 255;
+            } else {
+              gray = Math.min(255, Math.max(0, (gray - 128) * 1.45 + 128));
+            }
+            data[i] = gray;
+            data[i + 1] = gray;
+            data[i + 2] = gray;
+          }
+          ctx.putImageData(imgData, 0, 0);
+          canvas.toBlob((blob) => resolve(blob || file), 'image/png');
+        };
+        img.onerror = () => {
+          URL.revokeObjectURL(tempUrl);
+          resolve(file);
+        };
+        img.src = tempUrl;
+      });
+    }
+
     document.getElementById('ocr-file-input').addEventListener('change', async function(e) {
       const file = e.target.files[0];
       if (!file) return;
 
+      // Mostrar inmediatamente la vista previa grande de la foto subida (sin recortar)
       showOcrImagePreview(file);
 
       const progressBox = document.getElementById('ocr-progress-box');
@@ -1278,8 +1335,10 @@
       try {
         progressBox.classList.remove('hidden');
         ocrCard.classList.add('ocr-active');
-        statusText.textContent = 'Iniciando motor OCR...';
+        statusText.textContent = 'Optimizando contraste de captura...';
         progressBar.style.width = '10%';
+
+        const processedBlob = await preprocessImageForOcr(file);
 
         const worker = await Tesseract.createWorker('spa', 1, {
           logger: m => {
@@ -1292,7 +1351,7 @@
           }
         });
 
-        const { data: { text } } = await worker.recognize(file);
+        const { data: { text } } = await worker.recognize(processedBlob);
         await worker.terminate();
 
         const cleanedText = text.trim();
@@ -1319,6 +1378,12 @@
       showToast('Datos extraídos y texto guardado en la Nota.');
     });
 
+    /**
+     * Analizador inteligente de comprobantes venezolanos (BDV, Mercantil, Banesco, etc.):
+     * - Prioriza montos junto a "Bs" (antes o después) o "Monto (Bs.)".
+     * - Distingue el BANCO EMISOR (Origen / Encabezado) del BANCO DESTINO.
+     * - Detecta Tpago, PagomóvilBDV, Pago Móvil y Transferencias sin importar mayúsculas/minúsculas.
+     */
     function parseVenezuelanReceiptText(text) {
       const cleanOneLine = text.replace(/\s+/g, ' ').trim();
       const readableMultiline = text
@@ -1328,23 +1393,34 @@
         .join(' | ');
       const lower = cleanOneLine.toLowerCase();
 
+      // 0. Guardar SIEMPRE todo el texto leído en el campo Nota / Referencia como respaldo seguro
       if (readableMultiline) {
         document.getElementById('tx-note').value = readableMultiline;
       }
 
+      // 1. Detectar Monto en Bs (soporta "360,00 Bs", "360.00 Bs", "360,00 8s", "Bs. 360,00", "Monto (Bs.): 230,00")
       let detectedAmount = null;
       const amountPatterns = [
-        /(?:bs\.?|ves|monto[:\s]*|total[:\s]*)\s*(\d{1,3}(?:\.\d{3})*,\d{2})/i,
-        /(\d{1,3}(?:\.\d{3})+,\d{2})/,
-        /(?:bs\.?|ves|monto[:\s]*)\s*(\d+[.,]\d{2})/i,
-        /(\d+,\d{2})/
+        /(\d{1,3}(?:\.\d{3})*[.,]\d{2})\s*(?:bs\.?|ves|8s|b5)\b/i,               // Ej: 360,00 Bs o 360.00 Bs (BDV)
+        /(?:bs\.?|ves)\s*[:\-]?\s*(\d{1,3}(?:\.\d{3})*[.,]\d{2})/i,              // Ej: Bs. 1.450,00
+        /monto\s*(?:\(bs\.?\))?\s*[:\-]?\s*(\d{1,3}(?:\.\d{3})*[.,]\d{2})/i,     // Ej: Monto (Bs.): 230,00 (Mercantil)
+        /(\d{1,3}(?:\.\d{3})+,\d{2})/,                                           // Ej: 90.000,00
+        /(\d+,\d{2})/                                                            // Ej: 230,00 o 360,00
       ];
 
       for (const regex of amountPatterns) {
         const match = cleanOneLine.match(regex);
         if (match && match[1]) {
-          const normalized = match[1].replace(/\./g, '').replace(',', '.');
-          const val = parseFloat(normalized);
+          // Normalizar tanto formato "1.450,00" como "360.00" (cuando OCR confunde coma con punto)
+          let rawNum = match[1];
+          if (/,\d{2}$/.test(rawNum)) {
+            rawNum = rawNum.replace(/\./g, '').replace(',', '.');
+          } else if (/\.\d{2}$/.test(rawNum)) {
+            const parts = rawNum.split('.');
+            const decimals = parts.pop();
+            rawNum = parts.join('') + '.' + decimals;
+          }
+          const val = parseFloat(rawNum);
           if (!isNaN(val) && val > 0) {
             detectedAmount = val;
             break;
@@ -1357,40 +1433,84 @@
         setCurrencyRadio('Bs');
       }
 
+      // 2. Detectar si es Ingreso o Gasto según palabras clave del comprobante
       if (lower.includes('recibido') || lower.includes('abono') || lower.includes('acreditado')) {
         const incRadio = document.querySelector('input[name="tx-type"][value="Ingreso"]');
         if (incRadio) incRadio.checked = true;
       }
 
+      // 3. Detectar Medio de Pago (Tpago, PagomóvilBDV, Pago móvil, Transferencia, Transferencias)
       const pmSelect = document.getElementById('tx-payment-method');
-      if (lower.includes('pago movil') || lower.includes('pago móvil') || lower.includes('p2p') || lower.includes('c2p') || lower.includes('tpago')) {
+      const isPagoMovil = /tpago|t-pago|pago\s*m[oó]vil|pagom[oó]vil|p2p|c2p/i.test(cleanOneLine);
+      const isTransferencia = /transferencia|transferencias|transf\b/i.test(cleanOneLine);
+
+      // Si dice "Tu transferencia fue exitosa" o "Transferencias" arriba (Mercantil tiene "Transferencias" en el menú inferior)
+      if (/tu\s+transferencia\s+fue\s+exitosa|transferencia\s+a\s+terceros|comprobante\s+de\s+transferencia/i.test(cleanOneLine)) {
+        selectMatchingOption(pmSelect, 'Transferencia');
+      } else if (isPagoMovil) {
         selectMatchingOption(pmSelect, 'Pago Móvil');
-      } else if (lower.includes('transferencia') || lower.includes('transf')) {
+      } else if (isTransferencia) {
         selectMatchingOption(pmSelect, 'Transferencia');
       }
       handlePaymentMethodChange();
 
+      // 4. Detectar BANCO ORIGEN (sin confundirlo con "Banco destino:" ni "Banco: 0105 - BANCO MERCANTIL" en BDV)
       const bankSelect = document.getElementById('tx-bank');
-      const bankKeywords = [
-        { key: 'mercantil', label: 'Mercantil' },
-        { key: 'venezuela', label: 'Venezuela' },
-        { key: 'bdv', label: 'Venezuela' },
-        { key: 'banesco', label: 'Banesco' },
-        { key: 'provincial', label: 'Provincial' },
-        { key: 'bbva', label: 'Provincial' },
-        { key: 'bnc', label: 'BNC' },
-        { key: 'bancamiga', label: 'Bancamiga' },
-        { key: 'tesoro', label: 'Tesoro' },
-        { key: 'bicentenario', label: 'Bicentenario' }
-      ];
+      let detectedOriginBank = null;
 
-      for (const bk of bankKeywords) {
-        if (lower.includes(bk.key)) {
-          selectMatchingOption(bankSelect, bk.label);
-          break;
+      // Patrones específicos de encabezado/origen de cada banco venezolano
+      if (/pagom[oó]vilbdv|bdvdigital|origen\s*[:\-]?\s*0102|bdv\s+personas/i.test(cleanOneLine)) {
+        detectedOriginBank = 'Venezuela';
+      } else if (/enviar\s+tpago|tu\s+tpago\s+fue\s+exitoso|transferencia\s+a\s+terceros\s+mercantil|mercantil\s+m[oó]vil/i.test(cleanOneLine)) {
+        detectedOriginBank = 'Mercantil';
+      } else if (/origen\s*[:\-]?\s*0105/i.test(cleanOneLine)) {
+        detectedOriginBank = 'Mercantil';
+      } else if (/origen\s*[:\-]?\s*0134|banesco\s*m[oó]vil|pagom[oó]vil\s*banesco/i.test(cleanOneLine)) {
+        detectedOriginBank = 'Banesco';
+      } else if (/origen\s*[:\-]?\s*0108|dinero\s*r[aá]pido|provincial/i.test(cleanOneLine)) {
+        detectedOriginBank = 'Provincial';
+      } else {
+        // Respaldo: eliminar la sección de "Banco destino" o "Banco: 01XX" para buscar solo en el encabezado
+        const headerOnlyText = lower
+          .replace(/banco\s*destino\s*[:\-]?.*/i, '')
+          .replace(/banco\s*[:\-]?\s*\d{4}.*/i, '');
+
+        const bankKeywords = [
+          { key: 'mercantil', label: 'Mercantil' },
+          { key: 'venezuela', label: 'Venezuela' },
+          { key: 'bdv', label: 'Venezuela' },
+          { key: 'banesco', label: 'Banesco' },
+          { key: 'provincial', label: 'Provincial' },
+          { key: 'bbva', label: 'Provincial' },
+          { key: 'bnc', label: 'BNC' },
+          { key: 'bancamiga', label: 'Bancamiga' },
+          { key: 'tesoro', label: 'Tesoro' },
+          { key: 'bicentenario', label: 'Bicentenario' }
+        ];
+
+        for (const bk of bankKeywords) {
+          if (headerOnlyText.includes(bk.key)) {
+            detectedOriginBank = bk.label;
+            break;
+          }
         }
       }
 
+      if (detectedOriginBank) {
+        selectMatchingOption(bankSelect, detectedOriginBank);
+      }
+
+      // Detectar automáticamente si es Mismo Banco vs Otros Bancos (ej. "Transferencia a terceros Mercantil")
+      if (/terceros\s+mercantil|mismo\s+banco|cuentas\s+propias/i.test(cleanOneLine)) {
+        const mismoRadio = document.querySelector('input[name="bank-dest-type"][value="mismo"]');
+        if (mismoRadio) {
+          mismoRadio.checked = true;
+          isCommissionManuallyEdited = false;
+          syncCommissionField(true);
+        }
+      }
+
+      // 5. Detectar Fecha (DD/MM/AAAA o DD-MM-AAAA)
       const dateMatch = cleanOneLine.match(/(\d{2})[\/\-](\d{2})[\/\-](20\d{2})/);
       if (dateMatch) {
         const iso = `${dateMatch[3]}-${dateMatch[2]}-${dateMatch[1]}`;
@@ -1644,3 +1764,4 @@
   </script>
 </body>
 </html>
+```
