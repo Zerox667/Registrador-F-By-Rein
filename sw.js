@@ -2,18 +2,18 @@
  * Service Worker de Bóveda VE
  * Permite que la PWA cargue y funcione 100% sin conexión a internet.
  */
-const CACHE_NAME = 'boveda-ve-pwa-v1';
+const CACHE_NAME = 'boveda-ve-pwa-v2';
 
-// Archivos locales y librerías externas esenciales a cachear en la primera visita con internet
 const ASSETS_TO_CACHE = [
   './',
-  './ControlFinanzasVE.html',
+  './index.html',
   './manifest.json',
+  './icon-192.png',
+  './icon-512.png',
   'https://cdn.tailwindcss.com',
   'https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js'
 ];
 
-// 1. Instalación: guarda los recursos principales en caché
 self.addEventListener('install', (event) => {
   event.waitUntil(
     caches.open(CACHE_NAME).then((cache) => {
@@ -25,7 +25,6 @@ self.addEventListener('install', (event) => {
   self.skipWaiting();
 });
 
-// 2. Activación: limpia cachés de versiones anteriores
 self.addEventListener('activate', (event) => {
   event.waitUntil(
     caches.keys().then((keys) =>
@@ -37,7 +36,6 @@ self.addEventListener('activate', (event) => {
   self.clients.claim();
 });
 
-// 3. Estrategia Network-First con respaldo en Caché (garantiza apertura offline siempre)
 self.addEventListener('fetch', (event) => {
   if (event.request.method !== 'GET') return;
 
@@ -54,7 +52,7 @@ self.addEventListener('fetch', (event) => {
       })
       .catch(() => {
         return caches.match(event.request).then((cachedResponse) => {
-          return cachedResponse || caches.match('./ControlFinanzasVE.html');
+          return cachedResponse || caches.match('./index.html');
         });
       })
   );
