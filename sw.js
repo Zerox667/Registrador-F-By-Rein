@@ -2,7 +2,7 @@
  * Service Worker de Bóveda VE
  * Permite que la PWA cargue y funcione 100% sin conexión a internet.
  */
-const CACHE_NAME = 'boveda-ve-pwa-v3';
+const CACHE_NAME = 'boveda-ve-pwa-v4';
 
 const ASSETS_TO_CACHE = [
   './',
