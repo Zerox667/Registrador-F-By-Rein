@@ -2,7 +2,7 @@
  * Service Worker de Bóveda VE - Modo 100% Cache-First Offline
  * Sirve la aplicación, estilos y motor OCR al instante desde la caché local sin esperar red.
  */
-const CACHE_NAME = 'boveda-ve-pwa-v6';
+const CACHE_NAME = 'boveda-ve-pwa-v7';
 
 const CORE_ASSETS = [
   './',
