@@ -1,3 +1,4 @@
+```html
 <!DOCTYPE html>
 <html lang="es" class="dark">
 <head>
@@ -15,10 +16,6 @@
   <link rel="apple-touch-icon" sizes="512x512" href="./icon-512.png">
   <!-- Tailwind CSS para diseño responsivo y utilidades -->
   <script src="https://cdn.tailwindcss.com"></script>
-  <!-- Fuente Inter para legibilidad fintech -->
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
   <!-- Tesseract.js para lectura OCR en el navegador (carga diferida para garantizar apertura offline instantánea) -->
   <script defer src="https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js"></script>
 
@@ -1750,8 +1747,11 @@
 
     if ('serviceWorker' in navigator && (window.location.protocol === 'http:' || window.location.protocol === 'https:')) {
       window.addEventListener('load', () => {
-        navigator.serviceWorker.register('./sw.js')
-          .then(() => console.log('Service Worker PWA registrado correctamente.'))
+        navigator.serviceWorker.register('./sw.js', { scope: './' })
+          .then((reg) => {
+            reg.update();
+            console.log('Service Worker PWA v5 registrado correctamente.');
+          })
           .catch(err => console.warn('Service Worker pendiente de servidor local/HTTPS:', err));
       });
     }
@@ -1763,3 +1763,4 @@
   </script>
 </body>
 </html>
+```
